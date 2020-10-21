@@ -8,14 +8,14 @@ from azure.iot.hub import IoTHubRegistryManager
 
 MESSAGE_COUNT = 1
 
-CONNECTION_STRING = "HostName=NodeMCUhub.azure-devices.net;SharedAccessKeyName=service;SharedAccessKey=t8tanYLORZJvoXgkMVfkadWuTdh4fHEXVaraKey1cu0="
-DEVICE_ID = "esp8266"
-maps_key = "mSazIDQb6oUw3NTIHeDz3rZDK71_qNigBeH6il545Z8"
+CONNECTION_STRING = "HostName=<Host_Name>.azure-devices.net;SharedAccessKeyName=service;SharedAccessKey=<SharedAccessKey>" #Your IoT hub host name and SharedAccessKey
+DEVICE_ID = "<IoT Hub Device Name>" #Your IoT Hub device name
+maps_key = "<Azure_Maps_Primary_Key>"#Your azure maps primary key connection string
 
 def will_rain():
     # Build the REST URL with the latitude, longitude and maps key
-    lat = 16.098239799999998
-    lon = 80.1703708
+    lat = 16.098239799999998 #Latitude of your place
+    lon = 80.1703708 #Longitude of your place
     url = 'https://atlas.microsoft.com/weather/forecast/daily/json?api-version=1.0&query={},{}&subscription-key={}'
     url = url.format(lat, lon, maps_key)
 
@@ -26,7 +26,7 @@ def will_rain():
     result_json = result.json()
     summary = result_json['summary']
     category = summary['category']
-    #print(category)
+
 
     # Return if it will rain
     return category
@@ -53,23 +53,24 @@ def iothub_messaging_sample_run():
         print ( "IoT Hub C2D Messaging service sample stopped" )
 
 def send_conditions():
-    powerbiurl = 'https://api.powerbi.com/beta/d9b360a7-6ca0-4a2a-a335-79ec82439b9b/datasets/cb736f2d-b9be-4067-974b-b6b37bd889ae/rows?noSignUpCheck=1&key=425yxq5%2F8AoyyfFX7LGdvs3uxWwwLGhzdPhM8cCgAfKtd17%2FbFe1sCSU4Gs5msN%2Fh3HmEU36t7xZyHs%2B2Yu%2Ffg%3D%3D'
-    lat = 16.098239799999998
-    lon = 80.1703708
+    #Send current weather and severe weather alerts to power BI dashboard
+    powerbiurl = '<Power BI custom streaming data URL>'
+    lat = 16.098239799999998 #Latitude of your place
+    lon = 80.1703708 #Longitude of your place
     url1 = 'https://atlas.microsoft.com/weather/forecast/hourly/json?api-version=1.0&query={},{}&subscription-key={}'
     url1 = url1.format(lat, lon, maps_key)
     url2 = 'https://atlas.microsoft.com/weather/severe/alerts/json?api-version=1.0&query={},{}&subscription-key={}'
     url2 = url2.format(lat, lon, maps_key)
+    
     # Make the REST request
     result = requests.get(url1)
     result1 = requests.get(url2)
+    
     # Get the category from the JSON
     result_json = result.json()
-    #print(result_json)
-    #print(50*'*')
     result_json1 = result1.json()
-    #print(result_json1)
 
+    #Parse the json data
     forecasts = result_json['forecasts'][0]
     date = forecasts['date']
     iconPhrase = forecasts['iconPhrase']
@@ -109,8 +110,10 @@ def send_conditions():
 def main(mytimer: func.TimerRequest) -> None:
     utc_timestamp = datetime.datetime.utcnow().replace(
         tzinfo=datetime.timezone.utc).isoformat()
-
+    
+    # Cloud to Device messsages about present weather conditions
     iothub_messaging_sample_run()
+    # Present weather and future severe weather alerts to power BI dashboard 
     send_conditions()
 
     if mytimer.past_due:
