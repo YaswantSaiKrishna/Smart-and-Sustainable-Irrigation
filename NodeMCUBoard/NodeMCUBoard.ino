@@ -32,13 +32,15 @@ bool autoConnect = false;
 bool autoReconnect = true;
 
 //Azure IoT Hub Credentials
-const char* THUMBPRINT = "07:82:41:D6:AA:F4:C8:1B:9B:D0:75:0F:02:C0:A3:85:EE:50:0D:FB";
-const char* DEVICE_ID = "esp8266";
-const char* MQTT_HOST = "NodeMCUhub.azure-devices.net";
-const char* MQTT_USER = "NodeMCUhub.azure-devices.net/esp8266/?api-version=2018-06-30";
-const char* MQTT_PASS = "SharedAccessSignature sr=NodeMCUhub.azure-devices.net%2Fdevices%2Fesp8266&sig=J4iGpuV1jOphtkpHMxWxAUMl2iz61096fT6XedChA%2Bs%3D&se=1604352483";
-const char* MQTT_SUB_TOPIC = "devices/esp8266/messages/devicebound/#";
-const char* MQTT_PUB_TOPIC = "devices/esp8266/messages/events/";
+const char* THUMBPRINT = "07:82:41:D6:AA:F4:C8:1B:9B:D0:75:0F:02:C0:A3:85:EE:50:0D:FB"; //openssl s_client -servername {azure IoT Hub host name} -connect {azure IoT Hub host name}:443 | openssl x509 -fingerprint -noout
+const char* DEVICE_ID = "<Device_Name>";
+const char* MQTT_HOST = "<Host_Name>.azure-devices.net";
+const char* MQTT_USER = "<Host_Name>.azure-devices.net/<Device_Name>/?api-version=2018-06-30";
+//Azure cloud shell command to find MQTT_PASS
+//az iot hub generate-sas-token -d <Device_Id> --login 'HostName=<Host_Name.azure-devices.net>;SharedAccessKeyName=iothubowner;SharedAccessKey=<SAK>'
+const char* MQTT_PASS = "SharedAccessSignature sr=<Host_Name>.azure-devices.net%2Fdevices%2F<Device_Name>&sig=<Your Signature>%2Bs%3D&se=<>"; //IoT Hub SAS token
+const char* MQTT_SUB_TOPIC = "devices/<Device_Id>/messages/devicebound/#";
+const char* MQTT_PUB_TOPIC = "devices/<Device_Id>/messages/events/";
 
 BearSSL::WiFiClientSecure tlsClient;
 PubSubClient client(tlsClient);
